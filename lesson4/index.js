@@ -1,14 +1,39 @@
 import express from "express";
 import mongoose from "mongoose";
 
-// atlas db
-// const url_db =
-//   "mongodb+srv://tai15122003311_db_user:HlLVk0btbLIUA0wY@cluster0.mc2s1zi.mongodb.net/fullstack-web?appName=Cluster0";
+import UsersModel from "./model/users.js";
 
 //   local db
 const url_db = "mongodb://localhost:27017/fullstack-web";
 
 const app = express();
+
+app.use(express.json());
+
+app.post("/api/v1/users", async (req, res) => {
+  try {
+    const { userName, email } = req.body;
+    if (!userName) throw new Error("userName is required!");
+    if (!email) throw new Error("email is required!");
+
+    const createdUser = await UsersModel.create({
+      userName,
+      email,
+    });
+
+    res.status(201).send({
+      data: createdUser,
+      message: "Register successful!",
+      success: true,
+    });
+  } catch (error) {
+    res.status(403).send({
+      message: error.message,
+      data: null,
+      success: false,
+    });
+  }
+});
 
 mongoose
   .connect(url_db)

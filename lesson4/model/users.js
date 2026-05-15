@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
   userName: String,
   email: String,
-  age: Number,
 });
 // định nghĩa model cần truyền với phương thức model và các tham số lần lượt: tên collections, schema của document
 const UsersModel = mongoose.model("users", userSchema);
