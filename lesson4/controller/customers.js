@@ -43,6 +43,59 @@ const customerController = {
       });
     }
   },
+  createCustomer: async (req, res) => {
+    try {
+      const { name, email, age } = req.body;
+
+      if (!name) throw new Error("name is required!");
+      if (!email) throw new Error("email is required!");
+      if (!age) throw new Error("age is required!");
+
+      // check exist customer
+      const dataCustomer = await CustomerModel.findOne({ email });
+
+      if (dataCustomer) throw new Error("Email already exists!");
+
+      // create Customer
+
+      const createCustomer = await CustomerModel.create({
+        name,
+        email,
+        age,
+      });
+
+      res.json({
+        data: createCustomer,
+        message: "Create Customer Successfully",
+      });
+    } catch (error) {
+      res.status(403).send({
+        message: error.message,
+        data: null,
+        success: false,
+      });
+    }
+  },
+  deleteCustomer: async (req, res) => {
+    try {
+      const idCustomer = req.params.id;
+
+      await CustomerModel.findByIdAndUpdate(idCustomer, {
+        deleted: true,
+      });
+
+      res.json({
+        data: null,
+        message: "Delete Customer Successfully",
+      });
+    } catch (error) {
+      res.status(403).send({
+        message: error.message,
+        data: null,
+        success: false,
+      });
+    }
+  },
 };
 
 export default customerController;
