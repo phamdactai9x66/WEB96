@@ -5,6 +5,10 @@ import UsersModel from "./model/users.js";
 
 import CustomerModel from "./model/customer.js";
 
+import customerController from "./controller/customers.js";
+
+import userController from "./controller/users.js";
+
 //   local db
 const url_db = "mongodb://localhost:27017/fullstack-web";
 
@@ -12,51 +16,12 @@ const app = express();
 
 app.use(express.json());
 
-app.get("/customers", async (req, res) => {
-  try {
-    const dataCustomer = await UsersModel.find();
-
-    res.json({
-      data: dataCustomer,
-      message: "List Customer",
-    });
-  } catch (error) {
-    res.status(403).send({
-      message: error.message,
-      data: null,
-      success: false,
-    });
-  }
-});
+// get customers
+app.get("/customers", customerController.getCustomer);
 
 // GET /customers/:id
 
-app.get("/customers/:id", async (req, res) => {
-  try {
-    const idCustomer = req.params.id;
-
-    const findCustomer = await CustomerModel.findById(idCustomer);
-
-    if (!findCustomer) {
-      return res.status(404).send({
-        message: "not Found Customer",
-        data: null,
-        success: false,
-      });
-    }
-
-    res.json({
-      data: findCustomer,
-      message: "List Customer",
-    });
-  } catch (error) {
-    res.status(403).send({
-      message: error.message,
-      data: null,
-      success: false,
-    });
-  }
-});
+app.get("/customers/:id", customerController.getDetailCustomer);
 
 // 6. Thêm mới khách hàng
 // Viết API để thêm một khách hàng mới vào danh sách khách hàng.
@@ -118,6 +83,10 @@ app.delete("/customers/:id", async (req, res) => {
     });
   }
 });
+
+// get all users
+
+app.get("/users", userController.getAllUsers);
 
 mongoose
   .connect(url_db)

@@ -4,6 +4,7 @@ const commentSchema = new mongoose.Schema({
   postId: String,
   authorId: String,
   content: String,
+  star: Number,
 });
 // định nghĩa model cần truyền với phương thức model và các tham số lần lượt: tên collections, schema của document
 const UsersModel = mongoose.model("comments", commentSchema);
