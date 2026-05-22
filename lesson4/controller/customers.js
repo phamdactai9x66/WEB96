@@ -96,6 +96,33 @@ const customerController = {
       });
     }
   },
+  getApikey: async (req, res) => {
+    try {
+      const idParams = req.params.id;
+
+      if (!idParams) throw new Error("ID is required!");
+
+      // check exist customer by id
+      const findCustomer = await CustomerModel.findById(idParams);
+
+      if (!findCustomer) throw new Error("Customer not found");
+      // web-${customerId}$-${email}-${randomString}$
+
+      const apiKey = `web-$${findCustomer._id}$-$${findCustomer.email}$-$${uuidv4()}$`;
+
+      res.json({
+        api_key: apiKey,
+        message: "Get Api Key Successfully",
+        success: true,
+      });
+    } catch (error) {
+      res.status(403).send({
+        message: error.message,
+        data: null,
+        success: false,
+      });
+    }
+  },
 };
 
 export default customerController;

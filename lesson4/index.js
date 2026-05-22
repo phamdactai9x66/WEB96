@@ -13,6 +13,8 @@ import userRouter from "./routers/users.js";
 
 import customerRouter from "./routers/customers.js";
 
+import auth from "./middlewares/auth.js";
+
 //   local db
 const url_db = "mongodb://localhost:27017/fullstack-web";
 
@@ -25,13 +27,15 @@ function myLogger(req, res, next) {
   next(); // Để middleware tiếp theo hoặc xử lý route chính tiếp tục được gọi
 }
 
+// Authentication (Facebook)
+
 app.use(myLogger);
 
 // all route customer
 app.use("/customers", customerRouter);
 
-// get all users
-app.use("/users", userRouter);
+// get all users == Admin
+app.use("/users", auth.auhthorizationAdmin, userRouter);
 
 mongoose
   .connect(url_db)

@@ -1,14 +1,22 @@
 import express from "express";
 import customerController from "../controller/customers.js";
 
+import CustomerModel from "../model/customer.js";
+
+import { v4 as uuidv4 } from "uuid";
+
+import auth from "../middlewares/auth.js";
+
 const router = express.Router();
 
-router.get("/", customerController.getCustomer);
+router.get("/", auth.authentication, customerController.getCustomer);
 
-router.get("/:id", customerController.getDetailCustomer);
+router.get("/:id", auth.authentication, customerController.getDetailCustomer);
 
-router.post("/", customerController.createCustomer);
+router.post("/", auth.authentication, customerController.createCustomer);
 
-router.delete("/:id", customerController.deleteCustomer);
+router.delete("/:id", auth.authentication, customerController.deleteCustomer);
+
+router.get("/getApikey/:id", customerController.getApikey);
 
 export default router;
