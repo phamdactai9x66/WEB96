@@ -27,4 +27,6 @@ router.post(
   customerController.registerCustomer,
 );
 
+router.post("/login", customerController.loginCustomer);
+
 export default router;

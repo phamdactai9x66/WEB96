@@ -2,6 +2,7 @@ import UsersModel from "../model/users.js";
 
 import CustomerModel from "../model/customer.js";
 import bcrypt from "bcrypt";
+import { v4 as uuidv4 } from "uuid";
 
 const saltRounds = 10;
 
@@ -157,6 +158,37 @@ const customerController = {
       });
     } catch (error) {
       res.status(500).json({
+        message: error.message,
+        data: null,
+        success: false,
+      });
+    }
+  },
+  loginCustomer: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password)
+        throw new Error("Email and password is required!");
+
+      const findCustomer = await CustomerModel.findOne({ email });
+
+      if (!findCustomer) throw new Error("Username or password is incorrect!");
+
+      const hashingPasswordLogin = bcrypt.hashSync(password, findCustomer.salt);
+
+      if (hashingPasswordLogin !== findCustomer.password)
+        throw new Error("Username or password is incorrect!");
+
+      const apiKey = `web-${findCustomer._id}$-${email}$-${uuidv4()}$`;
+
+      res.status(201).send({
+        message: "Login successfully!",
+        userInfo: findCustomer,
+        apiKey,
+      });
+    } catch (error) {
+      res.status(500).send({
         message: error.message,
         data: null,
         success: false,
