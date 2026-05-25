@@ -4,7 +4,9 @@ const customerSchema = new mongoose.Schema({
   name: String,
   email: String,
   age: Number,
-  deleted: Boolean,
+  deleted: { type: Boolean, default: false },
+  password: String,
+  salt: String,
 });
 // định nghĩa model cần truyền với phương thức model và các tham số lần lượt: tên collections, schema của document
 const UsersModel = mongoose.model("customers", customerSchema);

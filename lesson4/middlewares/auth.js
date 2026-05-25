@@ -32,6 +32,16 @@ const authMiddleware = {
       res.status(403).send("Forbidden"); // Trả về lỗi 403 nếu không có quyền truy cập
     }
   },
+  checkFormInput: (req, res, next) => {
+    const { email, password, name, age } = req.body;
+    if (!email || !password || !age || !name) {
+      return res.status(400).json({
+        message: "Form input is required!",
+        success: false,
+      });
+    }
+    next();
+  },
 };
 
 export default authMiddleware;

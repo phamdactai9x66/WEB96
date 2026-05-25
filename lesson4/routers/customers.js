@@ -5,6 +5,8 @@ import CustomerModel from "../model/customer.js";
 
 import { v4 as uuidv4 } from "uuid";
 
+import bcrypt from "bcrypt";
+
 import auth from "../middlewares/auth.js";
 
 const router = express.Router();
@@ -18,5 +20,11 @@ router.post("/", auth.authentication, customerController.createCustomer);
 router.delete("/:id", auth.authentication, customerController.deleteCustomer);
 
 router.get("/getApikey/:id", customerController.getApikey);
+
+router.post(
+  "/register",
+  auth.checkFormInput,
+  customerController.registerCustomer,
+);
 
 export default router;

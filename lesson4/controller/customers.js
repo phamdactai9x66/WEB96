@@ -1,5 +1,10 @@
 import UsersModel from "../model/users.js";
 
+import CustomerModel from "../model/customer.js";
+import bcrypt from "bcrypt";
+
+const saltRounds = 10;
+
 const customerController = {
   getCustomer: async (req, res) => {
     try {
@@ -117,6 +122,41 @@ const customerController = {
       });
     } catch (error) {
       res.status(403).send({
+        message: error.message,
+        data: null,
+        success: false,
+      });
+    }
+  },
+  registerCustomer: async (req, res) => {
+    try {
+      const { name, email, age, password } = req.body;
+
+      const findCustomer = await CustomerModel.findOne({ email });
+
+      if (findCustomer) throw new Error("Email already exists!");
+
+      // tạo chuỗi ngẫu nhiên
+      const salt = bcrypt.genSaltSync(saltRounds);
+
+      // thực hiện mã hoá với chuỗi salt
+      const hashPassword = bcrypt.hashSync(password, salt);
+
+      const newCustomer = await CustomerModel.create({
+        name,
+        email,
+        age,
+        password: hashPassword,
+        salt,
+      });
+
+      res.json({
+        message: "Register with hash password!",
+        userInfo: newCustomer,
+        success: true,
+      });
+    } catch (error) {
+      res.status(500).json({
         message: error.message,
         data: null,
         success: false,
