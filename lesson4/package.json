@@ -8,10 +8,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev:env": "cross-env NODE_ENV=dev nodemon index.js",
+    "uat:env": "cross-env NODE_ENV=uat nodemon index.js",
+    "production:env": "cross-env NODE_ENV=production nodemon index.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.6.2",

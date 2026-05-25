@@ -18,7 +18,11 @@ import auth from "./middlewares/auth.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 
-dotenv.config();
+const env = process.env.NODE_ENV || "dev";
+
+dotenv.config({
+  path: `.env.${env}`,
+});
 
 //   local db
 const url_db = "mongodb://localhost:27017/fullstack-web";
