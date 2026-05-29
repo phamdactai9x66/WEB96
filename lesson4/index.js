@@ -17,6 +17,7 @@ import auth from "./middlewares/auth.js";
 
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 
 const env = process.env.NODE_ENV || "dev";
 
@@ -66,25 +67,77 @@ app.post("/register", async (req, res) => {
   });
 });
 
+// Secret key, thường được lưu trong biến môi trường (env)
+
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    // tìm thông tin user | tài khoản với email được gửi lên
-    const currentUser = await UsersModel.findOne({ email });
 
-    if (!currentUser) throw new Error("Sai tài khoản hoặc mật khẩu");
+    // Tìm kiếm user
+    const userData = {
+      id: "123",
+      username: "john_doe",
+      role: "user",
+    };
 
-    const hashingPasswordLogin = bcrypt.hashSync(password, currentUser.salt);
+    // Tạo AT
+    const access_token = jwt.sign(
+      { ...userData, tokenType: "AT" },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: "20m",
+      },
+    );
 
-    // compare password
-    if (hashingPasswordLogin !== currentUser.password)
-      throw new Error("Sai tài khoản hoặc mật khẩu");
+    // Tao RT
+    const refresh_token = jwt.sign(
+      { ...userData, tokenType: "RT" },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: "4w",
+      },
+    );
 
     res.status(201).send({
       message: "Login successfully!",
-      email,
-      userInfo: currentUser,
+      access_token,
+      refresh_token,
+      userInfo: userData,
       // v.v user info
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: error.message,
+      data: null,
+      success: false,
+    });
+  }
+});
+
+app.post("/refresh_token", (req, res) => {
+  try {
+    const { refresh_token } = req.query;
+
+    if (!refresh_token) throw new Error("Refresh token is required!");
+
+    const userInfo = jwt.verify(refresh_token, process.env.SECRET_KEY);
+
+    // check exist user
+
+    const userData = {
+      id: userInfo.id,
+      username: userInfo.username,
+      role: userInfo.role,
+    };
+
+    // tao AT
+    const access_token = jwt.sign({ ...userData, tokenType: "AT" }, secretKey, {
+      expiresIn: "20m",
+    });
+
+    res.json({
+      message: "Call refresh token successfully",
+      access_token,
     });
   } catch (error) {
     res.status(500).send({
