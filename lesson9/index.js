@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 
 import mongoose from "mongoose";
 
+import customerRouter from "./Router/customer.js";
+
 const app = express();
 
 const env = process.env.NODE_ENV || "dev";
@@ -15,6 +17,8 @@ dotenv.config({
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
+
+app.use("/customers", customerRouter);
 
 mongoose
   .connect(process.env.MONGO_URI)
