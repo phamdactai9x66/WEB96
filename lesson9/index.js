@@ -8,6 +8,8 @@ import customerRouter from "./Router/customer.js";
 
 const app = express();
 
+app.use(express.json());
+
 const env = process.env.NODE_ENV || "dev";
 
 dotenv.config({
