@@ -68,6 +68,10 @@ const customerController = {
         return res.status(404).json({ message: "Customer not found." });
       }
 
+      if (!findCustomer.isActive) {
+        return res.status(400).json({ message: "Customer is not active." });
+      }
+
       const findCustomerInfo = await CustomersModel.findOne({
         accountId: findCustomer._id,
       });
