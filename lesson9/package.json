@@ -11,6 +11,7 @@
     "dev:env": "cross-env NODE_ENV=dev nodemon index.js"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cloudinary": "^2.10.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
