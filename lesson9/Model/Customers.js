@@ -20,6 +20,7 @@ const customerSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "account",
   },
+  salt: String,
 });
 
 export default mongoose.model("customer", customerSchema);
