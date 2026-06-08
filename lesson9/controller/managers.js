@@ -46,6 +46,37 @@ const managersController = {
         .json({ message: "Error creating employee", error: error.message });
     }
   },
+  getAllEmployees: async (req, res) => {
+    try {
+      const { pageSize = 10, pageNumber = 1 } = req.query;
+      // code to get all employees from database
+      const totalItems = await EmployeesModel.countDocuments();
+
+      const totalPages = Math.ceil(totalItems / pageSize);
+      // Tính toán vị trí bắt đầu của trang hiện tại, trừ 1 vì mảng bắt đầu từ vị trí 0
+      const skip = (pageNumber - 1) * pageSize;
+
+      let condition = {};
+      if (req.query.search) {
+        condition.name = { $regex: req.query.search, $options: "i" };
+      }
+
+      // Truy vấn dữ liệu sử dụng Mongoose
+      const result = await EmployeesModel.find(condition)
+        .skip(skip)
+        .limit(pageSize);
+
+      const data = {
+        totalItems,
+        totalPages,
+        currentPage: +pageNumber,
+        items: result,
+      };
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: "Error getting employees" });
+    }
+  },
 };
 
 export default managersController;
