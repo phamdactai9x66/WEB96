@@ -30,19 +30,11 @@ const customerController = {
         password: hashedPassword,
       });
 
-      // create customer
-      const newCustomer = await CustomersModel.create({
-        accountId: newAccount._id,
-        name: req.body.name,
-        email: req.body.email,
-        phone: req.body.phone,
-        address: req.body.address,
-        salt,
-      });
-
       res.json({
-        message: "Register customer",
-        infoCustomer: newCustomer,
+        message: "Register account successfully!",
+        infoAccount: {
+          email: newAccount.email,
+        },
         success: true,
       });
     } catch (error) {

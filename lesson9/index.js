@@ -6,6 +6,8 @@ import mongoose from "mongoose";
 
 import customerRouter from "./Router/customer.js";
 
+import managersRouter from "./Router/managers.js";
+
 import multer from "multer";
 
 import { v2 as cloudinary } from "cloudinary";
@@ -108,7 +110,7 @@ app.delete("/delete_file", (req, res) => {
 });
 
 app.use("/customers", customerRouter);
-
+app.use("/managers", managersRouter);
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
