@@ -124,6 +124,48 @@ const customerController = {
         .json({ message: "Error logging in customer", error: error.message });
     }
   },
+  updateCustomerInfo: async (req, res) => {
+    try {
+      const { accountId } = req.params;
+      const { name, email, phone, address } = req.body;
+
+      // kiem tra khach hang khong ton tai trong database
+
+      const checkCustomer = await CustomersModel.findOne({ accountId });
+
+      if (!checkCustomer) {
+        const updatedCustomer = await CustomersModel.create({
+          accountId,
+          name,
+          email,
+          phone,
+          address,
+        });
+
+        return res.json({
+          message: "Customer created successfully.",
+          infoCustomer: updatedCustomer,
+        });
+      }
+
+      // kiem tra khach hang da ton tai trong database
+
+      const updatedCustomer = await CustomersModel.findByIdAndUpdate(
+        checkCustomer._id,
+        { name, email, phone, address },
+        { new: true },
+      );
+
+      res.json({
+        message: "Customer updated successfully.",
+        infoCustomer: updatedCustomer,
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error updating customer", error: error.message });
+    }
+  },
 };
 
 export default customerController;

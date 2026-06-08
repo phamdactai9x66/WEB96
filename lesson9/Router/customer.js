@@ -9,6 +9,10 @@ router.post("/", customerController.registerCustomer);
 
 router.post("/login", customerController.loginCustomer);
 
+router.put("/:accountId", customerController.updateCustomerInfo);
+
+//
+
 // get all customers
 router.get("/", async (req, res) => {
   try {
