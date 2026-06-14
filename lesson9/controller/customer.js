@@ -1,10 +1,21 @@
 import AccountModel from "../Model/Account.js";
-
 import CustomersModel from "../Model/Customers.js";
-
 import bcrypt from "bcrypt";
-
 import jwt from "jsonwebtoken";
+
+const signTokens = (payload) => {
+  const access_token = jwt.sign(
+    { ...payload, tokenType: "AT" },
+    process.env.SECRET_KEY,
+    { expiresIn: "20m" },
+  );
+  const refresh_token = jwt.sign(
+    { ...payload, tokenType: "RT" },
+    process.env.REFRESH_SECRET,
+    { expiresIn: "4w" },
+  );
+  return { access_token, refresh_token };
+};
 
 const customerController = {
   registerCustomer: async (req, res) => {
@@ -24,10 +35,13 @@ const customerController = {
       // thực hiện má hoá với chuỗi salt
       const hashedPassword = bcrypt.hashSync(password, salt);
 
+      // create customer info
+
       // create account
       const newAccount = await AccountModel.create({
         email,
         password: hashedPassword,
+        salt,
       });
 
       res.json({
@@ -64,49 +78,23 @@ const customerController = {
         return res.status(400).json({ message: "Customer is not active." });
       }
 
-      const findCustomerInfo = await CustomersModel.findOne({
-        accountId: findCustomer._id,
-      });
-
-      const salt = findCustomerInfo.salt;
-
-      // thực hiện mã hoá với chuỗi salt
-      const hashingPasswordLogin = bcrypt.hashSync(password, salt);
-
-      // compare passwords
-      if (hashingPasswordLogin !== findCustomer.password) {
+      const isMatch = bcrypt.compareSync(password, findCustomer.password);
+      if (!isMatch)
         return res
           .status(400)
           .json({ message: "Email or password is incorrect." });
-      }
 
-      const customerInfo = {
-        id: findCustomerInfo._id,
-        name: findCustomerInfo.name,
-        email: findCustomerInfo.email,
+      const tokenPayload = {
+        id: findCustomer._id,
+        email: findCustomer.email,
+        role: findCustomer.role,
       };
 
-      // Tạo AT
-      const access_token = jwt.sign(
-        { ...customerInfo, tokenType: "AT" },
-        process.env.SECRET_KEY,
-        {
-          expiresIn: "20m",
-        },
-      );
-
-      // Tao RT
-      const refresh_token = jwt.sign(
-        { ...customerInfo, tokenType: "RT" },
-        process.env.SECRET_KEY,
-        {
-          expiresIn: "4w",
-        },
-      );
+      const { access_token, refresh_token } = signTokens(tokenPayload);
 
       res.json({
         message: "Login successfully!",
-        userInfo: findCustomer,
+        userInfo: { email: findCustomer.email, role: findCustomer.role },
         access_token,
         refresh_token,
       });
@@ -156,6 +144,28 @@ const customerController = {
       res
         .status(500)
         .json({ message: "Error updating customer", error: error.message });
+    }
+  },
+  refreshToken: (req, res) => {
+    const { refresh_token } = req.body;
+    if (!refresh_token)
+      return res.status(401).json({ message: "No refresh token provided." });
+
+    try {
+      const decoded = jwt.verify(refresh_token, process.env.REFRESH_SECRET);
+      if (decoded.tokenType !== "RT")
+        return res.status(401).json({ message: "Invalid token type." });
+
+      const { id, email, role } = decoded;
+      const { access_token, refresh_token: new_refresh_token } = signTokens({
+        id,
+        email,
+        role,
+      });
+
+      res.json({ access_token, refresh_token: new_refresh_token });
+    } catch {
+      res.status(401).json({ message: "Refresh token is invalid or expired." });
     }
   },
 };

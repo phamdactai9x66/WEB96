@@ -1,20 +1,19 @@
 import express from "express";
 import customerController from "../controller/customer.js";
-
+import { verifyToken } from "../middleware/auth.js";
 import CustomerModel from "../Model/Customers.js";
 
 const router = express.Router();
 
 router.post("/", customerController.registerCustomer);
-
 router.post("/login", customerController.loginCustomer);
+router.post("/refresh-token", customerController.refreshToken);
 
-router.put("/:accountId", customerController.updateCustomerInfo);
-
-//
+// Protected routes
+router.put("/:accountId", verifyToken, customerController.updateCustomerInfo);
 
 // get all customers
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
     const { pageSize = 10, pageNumber = 1 } = req.query;
     // code to get all customers from database

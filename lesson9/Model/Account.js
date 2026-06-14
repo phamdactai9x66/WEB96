@@ -19,6 +19,10 @@ const accountSchema = new mongoose.Schema({
     enum: ["MANAGER", "CUSTOMER", "EMPLOYEE"],
     default: "CUSTOMER",
   },
+  salt: {
+    type: String,
+    required: true,
+  },
 });
 
 export default mongoose.model("accounts", accountSchema);

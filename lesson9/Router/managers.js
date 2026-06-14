@@ -1,13 +1,22 @@
 import express from "express";
-
 import managersController from "../controller/managers.js";
-
-import EmployeesModel from "../model/Employees.js";
+import { verifyToken, authorize } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/create_employee", managersController.createEmployee);
+// Chỉ MANAGER mới được tạo employee và xem danh sách
+router.post(
+  "/create_employee",
+  verifyToken,
+  authorize("MANAGER"),
+  managersController.createEmployee,
+);
 
-router.get("/employees", managersController.getAllEmployees);
+router.get(
+  "/employees",
+  verifyToken,
+  authorize("MANAGER", "EMPLOYEE"),
+  managersController.getAllEmployees,
+);
 
 export default router;
