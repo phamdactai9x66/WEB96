@@ -79,6 +79,7 @@ const customerController = {
       }
 
       const isMatch = bcrypt.compareSync(password, findCustomer.password);
+
       if (!isMatch)
         return res
           .status(400)
@@ -150,9 +151,9 @@ const customerController = {
     const { refresh_token } = req.body;
     if (!refresh_token)
       return res.status(401).json({ message: "No refresh token provided." });
-
     try {
       const decoded = jwt.verify(refresh_token, process.env.REFRESH_SECRET);
+
       if (decoded.tokenType !== "RT")
         return res.status(401).json({ message: "Invalid token type." });
 
@@ -166,6 +167,37 @@ const customerController = {
       res.json({ access_token, refresh_token: new_refresh_token });
     } catch {
       res.status(401).json({ message: "Refresh token is invalid or expired." });
+    }
+  },
+  getAllCustomers: async (req, res) => {
+    try {
+      const { pageSize = 10, pageNumber = 1 } = req.query;
+      // code to get all customers from database
+      const totalItems = await CustomersModel.countDocuments();
+
+      const totalPages = Math.ceil(totalItems / pageSize);
+      // Tính toán vị trí bắt đầu của trang hiện tại, trừ 1 vì mảng bắt đầu từ vị trí 0
+      const skip = (pageNumber - 1) * pageSize;
+
+      let condition = {};
+      if (req.query.search) {
+        condition.name = { $regex: req.query.search, $options: "i" };
+      }
+
+      // Truy vấn dữ liệu sử dụng Mongoose
+      const result = await CustomersModel.find(condition)
+        .skip(skip)
+        .limit(pageSize);
+
+      const data = {
+        totalItems,
+        totalPages,
+        currentPage: +pageNumber,
+        items: result,
+      };
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: "Error getting customers" });
     }
   },
 };
